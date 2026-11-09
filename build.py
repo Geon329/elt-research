@@ -96,7 +96,7 @@ elt = []
 for tab, label in (("ELT_A_코스형", "A 코스형"), ("ELT_B_읽기물형", "B 읽기물형"), ("ELT_판본확인필요", "판본 확인 필요")):
     for r in sheet("ELT_인스타그램_ELT_분류.xlsx", tab):
         match = enriched.get(("@" + handle(r["계정명"]), r["확인된 도서·시리즈"]), {})
-        elt.append({"handle": "@" + handle(r["계정명"]), "book": r["확인된 도서·시리즈"], "title": match.get("title", r["원제"]), "owner": match.get("owner", r["원출판사"]),
+        elt.append({"handle": "@" + handle(r["계정명"]), "book": r["확인된 도서·시리즈"], "title": match.get("title", r["원제"]), "owner": match.get("owner", r["원출판사"]), "local": match.get("local", r.get("국내 출판·유통사", "")),
                     "kind": label, "subtype": r["ELT세부유형"], "ages": r["연령대"], "basis": r["분류근거"], "link": r["공구 글 링크"]})
 
 data = {"publishers": publishers, "series": series, "influencers": influencers,
