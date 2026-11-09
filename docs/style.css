@@ -44,3 +44,5 @@ a{color:var(--accent)}
 @media(max-width:700px){.wrap{padding:0 12px}h1{font-size:21px}.tabs button{padding:10px 12px}}
 td.co{min-width:160px}
 select.grade{min-height:32px;border:1px solid var(--edge);border-radius:var(--radius);background:var(--bg);padding:2px 8px;font-weight:700}
+.controls button{min-height:38px;border:1px solid var(--edge);border-radius:var(--radius);background:var(--bg);padding:6px 12px;cursor:pointer}
+.controls button.export{background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:700}

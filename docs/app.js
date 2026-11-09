@@ -13,6 +13,15 @@ const gradeSelect = name => {
   s.addEventListener("change", () => { if (s.value) grades[name] = s.value; else delete grades[name]; localStorage.setItem(GRADE_KEY, JSON.stringify(grades)); });
   return s;
 };
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist();
+function exportGrades(publishers) {
+  const rows = publishers.map(r => ({ 출판사명: r.name, 사이트: r.site, 등급: gradeOf(r.name) || null }));
+  const data = { exportedAt: new Date().toISOString(), counts: Object.fromEntries(["A", "B", "C", "D"].map(g => [g, rows.filter(r => r.등급 === g).length])), publishers: rows };
+  const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
+  const link = el("a", { href: url, download: "ELT_출판사_등급_" + new Date().toISOString().slice(0, 10) + ".json" });
+  document.body.append(link); link.click(); link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 const safeUrl = url => /^https?:\/\//i.test(url || "") ? url : "";
 const link = (url, text = "링크") => safeUrl(url) ? el("a", { href: url, target: "_blank", rel: "noopener noreferrer", textContent: text }) : "";
 const links = value => {
@@ -112,7 +121,7 @@ function table(v) {
   draw();
   const view = el("div", { className: "view", hidden: true },
     el("h2", { textContent: v.title }),
-    el("div", { className: "controls" }, search, ...selects, reset, count),
+    el("div", { className: "controls" }, search, ...selects, reset, v.id === "pub" ? el("button", { type: "button", textContent: "등급 JSON 내보내기", className: "export", onclick: () => exportGrades(v.rows) }) : "", count),
     el("div", { className: "table-wrap" }, el("table", {}, el("thead", {}, head), body)),
     el("div", { className: "pager" }, prev, info, next));
   view.dataset.view = v.id;
