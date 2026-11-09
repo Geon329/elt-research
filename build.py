@@ -10,11 +10,15 @@ SITE = Path(__file__).parent / "docs"
 IMG = SITE / "img"
 
 
+def unq(v):
+    return v[1:] if isinstance(v, str) and v.startswith("'") and v[1:2] in "=+-@" else v
+
+
 def sheet(file, name):
     ws = openpyxl.load_workbook(SOURCE / file, read_only=True, data_only=True)[name]
     rows = ws.iter_rows(values_only=True)
     header = [str(h).strip() if h is not None else "" for h in next(rows)]
-    return [dict(zip(header, ("" if v is None else str(v).strip() for v in r))) for r in rows if any(v not in (None, "") for v in r)]
+    return [dict(zip(header, (unq("" if v is None else str(v).strip()) for v in r))) for r in rows if any(v not in (None, "") for v in r)]
 
 
 def thumb(src, dest, width):
