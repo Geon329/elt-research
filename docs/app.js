@@ -4,6 +4,15 @@ const el = (tag, props = {}, ...kids) => {
   node.append(...kids.filter(k => k !== null && k !== undefined && k !== ""));
   return node;
 };
+const GRADE_KEY = "elt-publisher-grade";
+const grades = JSON.parse(localStorage.getItem(GRADE_KEY) || "{}");
+const gradeOf = name => grades[name] || "";
+const gradeSelect = name => {
+  const s = el("select", { className: "grade", ariaLabel: name + " 등급" }, ...["", "A", "B", "C", "D"].map(v => el("option", { value: v, textContent: v || "선택" })));
+  s.value = gradeOf(name);
+  s.addEventListener("change", () => { if (s.value) grades[name] = s.value; else delete grades[name]; localStorage.setItem(GRADE_KEY, JSON.stringify(grades)); });
+  return s;
+};
 const safeUrl = url => /^https?:\/\//i.test(url || "") ? url : "";
 const link = (url, text = "링크") => safeUrl(url) ? el("a", { href: url, target: "_blank", rel: "noopener noreferrer", textContent: text }) : "";
 const links = value => {
@@ -27,8 +36,8 @@ function views(d) {
   return {
     publishers: [
       { id: "pub", title: "1. 국내 ELT 출판사 정보", rows: d.publishers,
-        cols: [["출판사명", r => r.name, r => r.name], ["사이트링크", r => link(r.site, r.site)], ["시리즈 수", r => r.count, r => +r.count || 0, "num"]],
-        search: r => r.name + " " + r.site, filters: [] },
+        cols: [["등급", r => gradeSelect(r.name), r => gradeOf(r.name) || "Z"], ["출판사명", r => r.name, r => r.name], ["사이트링크", r => link(r.site, r.site)], ["시리즈 수", r => r.count, r => +r.count || 0, "num"]],
+        search: r => r.name + " " + r.site, filters: [["등급", r => gradeOf(r.name) || "미선택", false, ["A", "B", "C", "D", "미선택"]]] },
       { id: "series", title: "2. 출판사별 시리즈·프로그램", rows: d.series,
         cols: [["이미지", r => cover(r.img, r.series)], ["출판사명", r => r.company, r => r.company, "co"], ["시리즈명", r => el("strong", { textContent: r.series }), r => r.series],
           ["시리즈 분류", r => tags([r.kind, r.subtype]), r => r.kind + r.subtype], ["연령대", r => tags(r.ages), r => r.ages.join()],
@@ -65,8 +74,8 @@ function table(v) {
   const state = { q: "", f: {}, sort: v.sort || [null, 1], page: 1 };
   const search = el("input", { type: "search", placeholder: "검색 (이름·제목·출판사…)", ariaLabel: v.title + " 검색" });
   const count = el("span", { className: "count" });
-  const selects = v.filters.map(([label, get, multi]) => {
-    const values = [...new Set(v.rows.flatMap(r => [].concat(get(r)).filter(Boolean)))].sort((a, b) => a.localeCompare(b, "ko"));
+  const selects = v.filters.map(([label, get, multi, fixed]) => {
+    const values = fixed || [...new Set(v.rows.flatMap(r => [].concat(get(r)).filter(Boolean)))].sort((a, b) => a.localeCompare(b, "ko"));
     const s = el("select", { ariaLabel: label }, el("option", { value: "", textContent: `${label} · 전체` }), ...values.map(x => el("option", { value: x, textContent: x })));
     s.addEventListener("change", () => { state.f[label] = s.value; state.page = 1; draw(); });
     return s;

@@ -43,3 +43,4 @@ a{color:var(--accent)}
 .pager button:disabled{opacity:.4;cursor:default}
 @media(max-width:700px){.wrap{padding:0 12px}h1{font-size:21px}.tabs button{padding:10px 12px}}
 td.co{min-width:160px}
+select.grade{min-height:32px;border:1px solid var(--edge);border-radius:var(--radius);background:var(--bg);padding:2px 8px;font-weight:700}
