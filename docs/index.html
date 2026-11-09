@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>ELT 출판사 · 국내 인플루언서 조사</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <h1>ELT 출판사 · 국내 인플루언서 조사</h1>
+    <p class="muted" id="summary">불러오는 중…</p>
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="publishers" aria-selected="true">ELT 출판사</button>
+      <button role="tab" data-tab="influencers" aria-selected="false">국내 인플루언서</button>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+  <section data-panel="publishers">
+    <nav class="subnav" aria-label="ELT 출판사 표"></nav>
+    <div class="views"></div>
+  </section>
+  <section data-panel="influencers" hidden>
+    <nav class="subnav" aria-label="국내 인플루언서 표"></nav>
+    <div class="views"></div>
+  </section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>

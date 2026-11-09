@@ -1,0 +1,44 @@
+:root{color-scheme:light dark;--bg:#fff;--surface:#f2f4f6;--ink:#18212b;--muted:#5a6673;--rule:#d5dae0;--edge:#8a96a3;--accent:#145da0;--on-accent:#fff;--hover:#e9eef3;--radius:6px}
+@media(prefers-color-scheme:dark){:root{--bg:#14171b;--surface:#20252c;--ink:#eef2f6;--muted:#aeb8c3;--rule:#3a434e;--edge:#6f7c89;--accent:#9acbff;--on-accent:#102236;--hover:#2a323c}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Pretendard","Malgun Gothic",system-ui,sans-serif}
+.wrap{max-width:1500px;margin:auto;padding:0 24px}
+.top{border-bottom:1px solid var(--rule);background:var(--surface);padding-top:24px}
+h1{font-size:26px;margin:0 0 4px;word-break:keep-all}
+.muted{color:var(--muted);font-size:14px;margin:0 0 16px}
+button,input,select{font:inherit;color:inherit}
+.tabs{display:flex;gap:4px}
+.tabs button{border:0;background:none;padding:12px 18px;font-weight:700;font-size:16px;border-bottom:3px solid transparent;cursor:pointer;color:var(--muted)}
+.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--accent)}
+.subnav{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 4px}
+.subnav button{border:1px solid var(--edge);background:var(--bg);border-radius:999px;padding:6px 14px;cursor:pointer}
+.subnav button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.subnav .n{opacity:.75;margin-left:6px;font-variant-numeric:tabular-nums}
+.view h2{font-size:19px;margin:16px 0 4px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+.controls input[type=search]{flex:1 1 260px;min-width:0}
+.controls input,.controls select{min-height:38px;border:1px solid var(--edge);border-radius:var(--radius);background:var(--bg);padding:6px 10px}
+.count{font-weight:700;font-variant-numeric:tabular-nums;margin-left:auto}
+.table-wrap{overflow-x:auto;border:1px solid var(--rule);border-radius:var(--radius)}
+table{width:100%;min-width:960px;border-collapse:collapse}
+td.wide{min-width:300px}
+td.date{max-width:200px;font-size:13px;color:var(--muted)}
+td a{white-space:nowrap}
+th,td{padding:8px 10px;border-bottom:1px solid var(--rule);text-align:left;vertical-align:middle}
+th{position:sticky;top:0;background:var(--surface);font-size:13px;white-space:nowrap}
+th button{all:unset;cursor:pointer}
+th button:focus-visible{outline:2px solid var(--accent)}
+tbody tr:hover{background:var(--hover)}
+td{font-size:14px;overflow-wrap:anywhere}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.cover{width:56px;height:76px;object-fit:contain;background:var(--surface);border-radius:3px;display:block}
+.cover.none{display:grid;place-items:center;font-size:11px;color:var(--muted)}
+.avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:8px;background:var(--surface)}
+.who{display:flex;align-items:center;min-width:180px}
+.tag{display:inline-block;padding:1px 8px;border-radius:999px;background:var(--surface);border:1px solid var(--rule);font-size:12px;margin:1px 2px 1px 0;white-space:nowrap}
+a{color:var(--accent)}
+.pager{display:flex;gap:8px;align-items:center;justify-content:center;margin:12px 0 40px}
+.pager button{border:1px solid var(--edge);background:var(--bg);border-radius:var(--radius);padding:6px 12px;cursor:pointer}
+.pager button:disabled{opacity:.4;cursor:default}
+@media(max-width:700px){.wrap{padding:0 12px}h1{font-size:21px}.tabs button{padding:10px 12px}}
+td.co{min-width:160px}
