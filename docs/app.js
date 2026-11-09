@@ -50,13 +50,13 @@ function views(d) {
           ["원저작권사(원출판사)", r => r.owner, r => r.owner], ["국가", r => r.country, r => r.country, "nw"], ["국내 출판·유통사", r => r.local, r => r.local],
           ["계정", r => r.handle, r => r.handle, "nw"], ["확인 수준", r => r.level, r => r.level, "nw"], ["링크", r => link(r.link)]],
         search: r => [r.product, r.book, r.title, r.owner, r.local, r.handle].join(" "),
-        filters: [["원출판사 국가", r => r.country], ["확인 수준", r => r.level], ["계정", r => r.handle]] },
+        filters: [["기간", r => r.period], ["원출판사 국가", r => r.country], ["확인 수준", r => r.level], ["계정", r => r.handle]] },
       { id: "elt", title: "6. 공구 도서의 ELT 분류", rows: d.elt,
         cols: [["도서·시리즈", r => el("strong", { textContent: r.book }), r => r.book], ["원제", r => r.title, r => r.title], ["원출판사", r => r.owner, r => r.owner], ["국내 출판·유통사", r => r.local, r => r.local],
           ["ELT 분류", r => tags([r.kind, r.subtype]), r => r.kind + r.subtype], ["연령대", r => r.ages, r => r.ages, "nw"],
           ["계정", r => r.handle, r => r.handle, "nw"], ["링크", r => links(r.link)]],
         search: r => [r.book, r.title, r.owner, r.local, r.subtype, r.handle].join(" "),
-        filters: [["ELT 분류", r => r.kind], ["세부 유형", r => r.subtype], ["연령대", r => r.ages]] },
+        filters: [["기간", r => r.period], ["ELT 분류", r => r.kind], ["세부 유형", r => r.subtype], ["연령대", r => r.ages]] },
     ],
   };
 }

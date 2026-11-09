@@ -95,6 +95,12 @@ products = [
     for r in sheet("공구목록_웹보강.xlsx", "계정별 공구 도서")
 ]
 enriched = {(p["handle"], p["book"]): p for p in products}
+for p in products:
+    p["period"] = "최근"
+for r in sheet("공구목록_1년치_웹보강.xlsx", "계정별 공구 도서"):
+    products.append({"handle": r["계정명"], "date": r["공구날짜"], "product": r["공구제품명"], "book": r["확인된도서"],
+                     "title": r["원제"], "owner": r["원출판사"], "country": r["원출판사국가"], "local": r["국내출판유통사"],
+                     "level": r["확인수준"], "link": r["공구글링크"], "period": "1년치"})
 
 elt = []
 for tab, label in (("ELT_A_코스형", "A 코스형"), ("ELT_B_읽기물형", "B 읽기물형"), ("ELT_판본확인필요", "판본 확인 필요")):
@@ -103,6 +109,14 @@ for tab, label in (("ELT_A_코스형", "A 코스형"), ("ELT_B_읽기물형", "B
         elt.append({"handle": "@" + handle(r["계정명"]), "book": r["확인된 도서·시리즈"], "title": match.get("title", r["원제"]), "owner": match.get("owner", r["원출판사"]), "local": match.get("local", r.get("국내 출판·유통사", "")),
                     "kind": label, "subtype": r["ELT세부유형"], "ages": r["연령대"], "basis": r["분류근거"], "link": r["공구 글 링크"]})
 
+for p in products:
+    p.setdefault("period", "최근")
+for e in elt:
+    e.setdefault("period", "최근")
+for r in sheet("공구목록_1년치_웹보강.xlsx", "계정별 공구 도서"):
+    if r["ELT분류"] in ("A 코스형", "B 읽기물형"):
+        elt.append({"handle": r["계정명"], "book": r["확인된도서"], "title": r["원제"], "owner": r["원출판사"], "local": r["국내출판유통사"],
+                    "kind": r["ELT분류"], "subtype": r["세부유형"], "ages": r["연령대"], "basis": "", "link": r["공구글링크"], "period": "1년치"})
 data = {"gradeLegend": GRADES["legend"], "publishers": publishers, "series": series, "influencers": influencers,
         "activities": activities, "products": products, "elt": elt}
 (SITE / "data.json").write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
