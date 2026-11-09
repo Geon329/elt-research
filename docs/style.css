@@ -46,3 +46,6 @@ td.co{min-width:160px}
 select.grade{min-height:32px;border:1px solid var(--edge);border-radius:var(--radius);background:var(--bg);padding:2px 8px;font-weight:700}
 .controls button{min-height:38px;border:1px solid var(--edge);border-radius:var(--radius);background:var(--bg);padding:6px 12px;cursor:pointer}
 .controls button.export{background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:700}
+span.grade{display:inline-block;min-width:26px;text-align:center;padding:2px 8px;border-radius:999px;font-weight:800;color:#fff}
+.gA{background:#1b5e20}.gB{background:#1565c0}.gC{background:#ef6c00}.gD{background:#ad1457}.gE{background:#546e7a}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:4px 0 0}

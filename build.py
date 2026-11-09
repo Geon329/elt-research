@@ -43,14 +43,18 @@ def handle(value):
 series_images = images(sorted((SOURCE / "이미지/목록").glob("시리즈_프로그램_*.json")), "source_excel_row")
 profile_images = {handle(k): v for k, v in images([SOURCE / "이미지/목록/인플루언서_프로필_이미지.json"], "handle").items()}
 
+GRADES = json.loads((Path(__file__).parent / "publisher-grades.json").read_text(encoding="utf-8"))
+grade_of = GRADES["grades"]
 publishers = [
-    {"name": r["회사명"], "site": r["사이트"], "count": r["시리즈 수"]}
-    for r in sheet("ELT_출판사_시리즈_신간순20261108.xlsx", "회사별 요약")
+    {"name": r["회사명"], "site": r["사이트"], "count": r["시리즈 수"], "grade": grade_of[r["회사명"]]}
+    for r in sheet("ELT_출판사_시리즈_신간순20261108.xlsx", "회사별 요약") if r["회사명"] in grade_of
 ]
 
 series = []
 mismatch = 0
 for index, r in enumerate(sheet("ELT_출판사_시리즈_신간순20261108.xlsx", "시리즈 전체"), start=2):
+    if r["회사명"] not in grade_of:
+        continue
     image = series_images.get(index)
     if image and (image["company"], image["series"]) != (r["회사명"], r["시리즈·프로그램"]):
         mismatch += 1
@@ -61,7 +65,7 @@ for index, r in enumerate(sheet("ELT_출판사_시리즈_신간순20261108.xlsx"
         thumb(image["local_path"], SITE / file, 240)
     series.append({
         "company": r["회사명"], "series": r["시리즈·프로그램"],
-        "kind": {"A": "A 코스형", "B": "B 읽기물형"}.get(r["A/B"], r["A/B"]), "subtype": r["세부 유형"],
+        "grade": grade_of[r["회사명"]], "kind": {"A": "A 코스형", "B": "B 읽기물형"}.get(r["A/B"], r["A/B"]), "subtype": r["세부 유형"],
         "ages": [a for a in ("유아", "초등", "중등", "성인") if r[a] == "O"],
         "link": r["근거 링크"], "date": r["출간일"][:10], "img": file,
     })
@@ -99,7 +103,7 @@ for tab, label in (("ELT_A_코스형", "A 코스형"), ("ELT_B_읽기물형", "B
         elt.append({"handle": "@" + handle(r["계정명"]), "book": r["확인된 도서·시리즈"], "title": match.get("title", r["원제"]), "owner": match.get("owner", r["원출판사"]), "local": match.get("local", r.get("국내 출판·유통사", "")),
                     "kind": label, "subtype": r["ELT세부유형"], "ages": r["연령대"], "basis": r["분류근거"], "link": r["공구 글 링크"]})
 
-data = {"publishers": publishers, "series": series, "influencers": influencers,
+data = {"gradeLegend": GRADES["legend"], "publishers": publishers, "series": series, "influencers": influencers,
         "activities": activities, "products": products, "elt": elt}
 (SITE / "data.json").write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 stats = {k: len(v) for k, v in data.items()}

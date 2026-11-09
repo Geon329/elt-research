@@ -4,24 +4,6 @@ const el = (tag, props = {}, ...kids) => {
   node.append(...kids.filter(k => k !== null && k !== undefined && k !== ""));
   return node;
 };
-const GRADE_KEY = "elt-publisher-grade";
-const grades = JSON.parse(localStorage.getItem(GRADE_KEY) || "{}");
-const gradeOf = name => grades[name] || "";
-const gradeSelect = name => {
-  const s = el("select", { className: "grade", ariaLabel: name + " 등급" }, ...["", "A", "B", "C", "D", "E"].map(v => el("option", { value: v, textContent: v || "선택" })));
-  s.value = gradeOf(name);
-  s.addEventListener("change", () => { if (s.value) grades[name] = s.value; else delete grades[name]; localStorage.setItem(GRADE_KEY, JSON.stringify(grades)); });
-  return s;
-};
-if (navigator.storage && navigator.storage.persist) navigator.storage.persist();
-function exportGrades(publishers) {
-  const rows = publishers.map(r => ({ 출판사명: r.name, 사이트: r.site, 등급: gradeOf(r.name) || null }));
-  const data = { exportedAt: new Date().toISOString(), counts: Object.fromEntries(["A", "B", "C", "D", "E"].map(g => [g, rows.filter(r => r.등급 === g).length])), publishers: rows };
-  const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
-  const link = el("a", { href: url, download: "ELT_출판사_등급_" + new Date().toISOString().slice(0, 10) + ".json" });
-  document.body.append(link); link.click(); link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
 const safeUrl = url => /^https?:\/\//i.test(url || "") ? url : "";
 const link = (url, text = "링크") => safeUrl(url) ? el("a", { href: url, target: "_blank", rel: "noopener noreferrer", textContent: text }) : "";
 const links = value => {
@@ -45,8 +27,8 @@ function views(d) {
   return {
     publishers: [
       { id: "pub", title: "1. 국내 ELT 출판사 정보", rows: d.publishers,
-        cols: [["등급", r => gradeSelect(r.name), r => gradeOf(r.name) || "Z"], ["출판사명", r => r.name, r => r.name], ["사이트링크", r => link(r.site, r.site)], ["시리즈 수", r => r.count, r => +r.count || 0, "num"]],
-        search: r => r.name + " " + r.site, filters: [["등급", r => gradeOf(r.name) || "미선택", false, ["A", "B", "C", "D", "E", "미선택"]]] },
+        cols: [["등급", r => el("span", { className: "grade g" + r.grade, textContent: r.grade, title: (window.GRADE_LEGEND || {})[r.grade] || "" }), r => r.grade], ["출판사명", r => r.name, r => r.name], ["사이트링크", r => link(r.site, r.site)], ["시리즈 수", r => r.count, r => +r.count || 0, "num"]],
+        search: r => r.name + " " + r.site, filters: [["등급", r => r.grade, false, ["A", "B", "C", "D", "E"]]], legend: true },
       { id: "series", title: "2. 출판사별 시리즈·프로그램", rows: d.series,
         cols: [["이미지", r => cover(r.img, r.series)], ["출판사명", r => r.company, r => r.company, "co"], ["시리즈명", r => el("strong", { textContent: r.series }), r => r.series],
           ["시리즈 분류", r => tags([r.kind, r.subtype]), r => r.kind + r.subtype], ["연령대", r => tags(r.ages), r => r.ages.join()],
@@ -121,7 +103,8 @@ function table(v) {
   draw();
   const view = el("div", { className: "view", hidden: true },
     el("h2", { textContent: v.title }),
-    el("div", { className: "controls" }, search, ...selects, reset, v.id === "pub" ? el("button", { type: "button", textContent: "등급 JSON 내보내기", className: "export", onclick: () => exportGrades(v.rows) }) : "", count),
+    v.legend ? el("p", { className: "muted legend" }, ...Object.entries(window.GRADE_LEGEND || {}).map(([g, t]) => el("span", {}, el("span", { className: "grade g" + g, textContent: g }), " " + t + "  "))) : "",
+    el("div", { className: "controls" }, search, ...selects, reset, count),
     el("div", { className: "table-wrap" }, el("table", {}, el("thead", {}, head), body)),
     el("div", { className: "pager" }, prev, info, next));
   view.dataset.view = v.id;
@@ -129,6 +112,7 @@ function table(v) {
 }
 
 fetch("data.json").then(r => r.json()).then(d => {
+  window.GRADE_LEGEND = d.gradeLegend || {};
   const all = views(d);
   for (const [panel, list] of Object.entries(all)) {
     const section = document.querySelector(`[data-panel=${panel}]`);
