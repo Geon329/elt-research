@@ -121,7 +121,41 @@ for r in sheet("공구목록_1년치_웹보강.xlsx", "계정별 공구 도서")
     if r["ELT분류"] in ("A 코스형", "B 읽기물형"):
         elt.append({"handle": r["계정명"], "book": r["확인된도서"], "title": r["원제"], "owner": r["원출판사"], "local": r["국내출판유통사"],
                     "kind": r["ELT분류"], "subtype": r["세부유형"], "ages": r["연령대"], "basis": "", "link": r["공구글링크"], "period": "1년치"})
-data = {"gradeLegend": GRADES["legend"], "publishers": publishers, "series": series, "influencers": influencers,
+def build_stats(products, elt, grade_of):
+    import re as _re
+    def gkey(s):
+        return _re.sub(r"[\s·.,/&'()\-]+", "", str(s or "").lower())
+    gk = [(gkey(p), g) for name, g in grade_of.items() for p in name.split("/") if len(gkey(p)) >= 2]
+    def grade(r):
+        for f in (r.get("local"), r.get("owner")):
+            n = gkey(f)
+            if n and "미확인" not in str(f):
+                for k, g in gk:
+                    if k in n or (len(n) >= 3 and n in k):
+                        return g
+        return "미확인·등급 없음"
+    out = []
+    def add(group, items, base):
+        total = sum(items.values()) or 1
+        for label, cnt in sorted(items.items(), key=lambda kv: -kv[1])[:30]:
+            out.append({"group": group, "label": label, "count": cnt, "pct": round(cnt * 100 / total, 1), "base": base})
+    from collections import Counter
+    ok = [p for p in products if p["level"] in ("확인", "부분 확인") and p.get("owner") and "미확인" not in p["owner"]]
+    base = f"원출판사 확인 {len(ok):,} / 전체 {len(products):,}행"
+    add("확인 수준", Counter(p["level"] for p in products), f"전체 {len(products):,}행")
+    add("원출판사 국가", Counter(p["country"] if p.get("country") and "미확인" not in p["country"] else "미확인" for p in ok), base)
+    add("원출판사 순위", Counter(p["owner"] for p in ok), base)
+    add("국내 출판·유통사 순위", Counter(p["local"] for p in products if p.get("local") and "미확인" not in p["local"]), "국내 출판·유통사 확인된 행")
+    add("출판사 등급(A~E)", Counter(grade(p) for p in products), f"전체 {len(products):,}행")
+    add("ELT 분류", Counter(e["kind"] for e in elt), f"ELT {len(elt):,}행")
+    add("ELT 연령대", Counter((e.get("ages") or "미확인") for e in elt), f"ELT {len(elt):,}행")
+    acc = Counter((p["handle"], p["owner"]) for p in ok)
+    for (h, o), c in acc.most_common(30):
+        out.append({"group": "계정별 많이 공구한 원출판사", "label": f"{h} · {o}", "count": c, "pct": None, "base": base})
+    return out
+
+
+data = {"stats": build_stats(products, elt, grade_of), "gradeLegend": GRADES["legend"], "publishers": publishers, "series": series, "influencers": influencers,
         "activities": activities, "products": products, "elt": elt}
 (SITE / "data.json").write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 stats = {k: len(v) for k, v in data.items()}

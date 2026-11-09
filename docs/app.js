@@ -57,6 +57,9 @@ function views(d) {
           ["계정", r => r.handle, r => r.handle, "nw"], ["링크", r => links(r.link)]],
         search: r => [r.book, r.title, r.owner, r.local, r.subtype, r.handle].join(" "),
         filters: [["기간", r => r.period], ["ELT 분류", r => r.kind], ["세부 유형", r => r.subtype], ["연령대", r => r.ages]] },
+      { id: "stats", title: "7. 공구 도서 통계", rows: d.stats || [],
+        cols: [["구분", r => r.group, r => r.group, "nw"], ["항목", r => r.label, r => r.label], ["건수", r => r.count.toLocaleString(), r => r.count, "num"], ["비율", r => r.pct === null ? "" : r.pct + "%", r => r.pct || 0, "num"], ["기준", r => r.base, null, "nw"]],
+        search: r => r.group + " " + r.label, filters: [["구분", r => r.group]] },
     ],
   };
 }
