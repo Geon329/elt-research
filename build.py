@@ -88,13 +88,15 @@ products = [
     {"handle": "@" + handle(r["계정명"]), "date": r["공구 날짜"], "product": r["공구 제품명"], "book": r["확인된 도서·시리즈"],
      "title": r["원제"], "owner": r["원출판사"], "country": r["원출판사 국가"], "local": r["국내 출판·유통사"],
      "level": r["확인 수준"], "link": r["공구 글 링크"]}
-    for r in sheet("공구목록.xlsx", "계정별 공구 도서")
+    for r in sheet("공구목록_웹보강.xlsx", "계정별 공구 도서")
 ]
+enriched = {(p["handle"], p["book"]): p for p in products}
 
 elt = []
 for tab, label in (("ELT_A_코스형", "A 코스형"), ("ELT_B_읽기물형", "B 읽기물형"), ("ELT_판본확인필요", "판본 확인 필요")):
     for r in sheet("ELT_인스타그램_ELT_분류.xlsx", tab):
-        elt.append({"handle": "@" + handle(r["계정명"]), "book": r["확인된 도서·시리즈"], "title": r["원제"], "owner": r["원출판사"],
+        match = enriched.get(("@" + handle(r["계정명"]), r["확인된 도서·시리즈"]), {})
+        elt.append({"handle": "@" + handle(r["계정명"]), "book": r["확인된 도서·시리즈"], "title": match.get("title", r["원제"]), "owner": match.get("owner", r["원출판사"]),
                     "kind": label, "subtype": r["ELT세부유형"], "ages": r["연령대"], "basis": r["분류근거"], "link": r["공구 글 링크"]})
 
 data = {"publishers": publishers, "series": series, "influencers": influencers,
