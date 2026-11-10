@@ -140,6 +140,21 @@ def build_stats(products, elt, grade_of):
         for label, cnt in sorted(items.items(), key=lambda kv: -kv[1])[:30]:
             out.append({"group": group, "label": label, "count": cnt, "pct": round(cnt * 100 / total, 1), "base": base})
     from collections import Counter
+    def canon(s):
+        s = str(s or "").strip()
+        t = _re.sub(r"\s*[\(（].*?[\)）]", "", s)
+        t = _re.sub(r"[,.]?\s*(Inc|Ltd|LLC|Co|Corp|Limited|Publishing|Publishers|Press|Books|Group|UK|USA|US)\.?$", "", t, flags=_re.I).strip()
+        t = _re.sub(r"[,.]?\s*(Inc|Ltd|LLC|Co|Corp|Limited)\.?$", "", t, flags=_re.I).strip()
+        return t or s
+    names = {}
+    for p in products:
+        if p.get("owner"):
+            names.setdefault(canon(p["owner"]).lower(), Counter())[canon(p["owner"])] += 1
+    def merged(s):
+        c = names.get(canon(s).lower())
+        return c.most_common(1)[0][0] if c else s
+    products = [dict(p, owner=merged(p["owner"])) if p.get("owner") and "미확인" not in p["owner"] else p for p in products]
+    elt = [dict(e, owner=merged(e["owner"])) if e.get("owner") and "미확인" not in e["owner"] else e for e in elt]
     ok = [p for p in products if p["level"] in ("확인", "부분 확인") and p.get("owner") and "미확인" not in p["owner"]]
     base = f"원출판사 확인 {len(ok):,} / 전체 {len(products):,}행"
     add("확인 수준", Counter(p["level"] for p in products), f"전체 {len(products):,}행")
