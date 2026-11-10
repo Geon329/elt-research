@@ -153,6 +153,11 @@ def build_stats(products, elt, grade_of):
     def merged(s):
         c = names.get(canon(s).lower())
         return c.most_common(1)[0][0] if c else s
+    for r in list(products) + list(elt):
+        o = r.get("owner")
+        r["po"] = merged(o) if o and "미확인" not in o else ""
+        g = grade(r)
+        r["pg"] = "" if g == "미확인·등급 없음" else g
     products = [dict(p, owner=merged(p["owner"])) if p.get("owner") and "미확인" not in p["owner"] else p for p in products]
     elt = [dict(e, owner=merged(e["owner"])) if e.get("owner") and "미확인" not in e["owner"] else e for e in elt]
     ok = [p for p in products if p["level"] in ("확인", "부분 확인") and p.get("owner") and "미확인" not in p["owner"]]
