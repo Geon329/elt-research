@@ -27,8 +27,8 @@ function views(d) {
   return {
     publishers: [
       { id: "pub", title: "1. 국내 ELT 출판사 정보", rows: d.publishers,
-        cols: [["등급", r => el("span", { className: "grade g" + r.grade, textContent: r.grade, title: (window.GRADE_LEGEND || {})[r.grade] || "" }), r => r.grade], ["출판사명", r => r.name, r => r.name], ["사이트링크", r => link(r.site, r.site)], ["시리즈 수", r => r.count, r => +r.count || 0, "num"]],
-        search: r => r.name + " " + r.site, filters: [["등급", r => r.grade, false, ["A", "B", "C", "D", "E"]]], legend: true },
+        cols: [["등급", r => el("span", { className: "grade g" + (r.grade || "N"), textContent: r.grade || "미정", title: (window.GRADE_LEGEND || {})[r.grade] || "등급 미정" }), r => r.grade || "Z"], ["출판사명", r => r.name, r => r.name], ["사이트링크", r => link(r.site, r.site)], ["시리즈 수", r => r.count, r => +r.count || 0, "num"]],
+        search: r => r.name + " " + r.site, filters: [["등급", r => r.grade || "미정", false, ["A", "B", "C", "D", "E", "미정"]]], legend: true },
       { id: "series", title: "2. 출판사별 시리즈·프로그램", rows: d.series,
         cols: [["이미지", r => cover(r.img, r.series)], ["출판사명", r => r.company, r => r.company, "co"], ["시리즈명", r => el("strong", { textContent: r.series }), r => r.series],
           ["시리즈 분류", r => tags([r.kind, r.subtype]), r => r.kind + r.subtype], ["연령대", r => tags(r.ages), r => r.ages.join()],

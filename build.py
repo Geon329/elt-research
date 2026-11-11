@@ -14,8 +14,15 @@ def unq(v):
     return v[1:] if isinstance(v, str) and v.startswith("'") and v[1:2] in "=+-@" else v
 
 
+def find(file):
+    hits = [p for p in SOURCE.rglob(file) if "중간본" not in p.parts]
+    if len(hits) != 1:
+        raise FileNotFoundError(f"{file}: {len(hits)} matches under {SOURCE}")
+    return hits[0]
+
+
 def sheet(file, name):
-    ws = openpyxl.load_workbook(SOURCE / file, read_only=True, data_only=True)[name]
+    ws = openpyxl.load_workbook(find(file), read_only=True, data_only=True)[name]
     rows = ws.iter_rows(values_only=True)
     header = [str(h).strip() if h is not None else "" for h in next(rows)]
     return [dict(zip(header, (unq("" if v is None else str(v).strip()) for v in r))) for r in rows if any(v not in (None, "") for v in r)]
@@ -73,6 +80,22 @@ for index, r in enumerate(sheet("ELT_출판사_시리즈_신간순20261108.xlsx"
         "ages": [a for a in ("유아", "초등", "중등", "성인") if r[a] == "O"],
         "link": r["근거 링크"], "date": r["출간일"][:10], "img": file,
     })
+
+NEW_REPORT = "국내_ELT_추가발굴_보고서_20261111.xlsx"
+new_pubs = [r for r in sheet(NEW_REPORT, "출판사") if not r["제외 사유"]]
+new_names = {r["출판사명"] for r in new_pubs}
+series_count = {}
+for r in sheet(NEW_REPORT, "시리즈·프로그램"):
+    if r["출판사명"] not in new_names:
+        continue
+    series_count[r["출판사명"]] = series_count.get(r["출판사명"], 0) + 1
+    series.append({
+        "company": r["출판사명"], "series": r["시리즈·프로그램"], "grade": "",
+        "kind": {"A": "A 코스형", "B": "B 읽기물형"}.get(r["A/B"][:1], r["A/B"]), "subtype": r["세부 유형"],
+        "ages": [a for a in ("유아", "초등", "중등", "성인") if a in r["대상"] or (a == "성인" and "고등" in r["대상"])],
+        "link": r["링크"], "date": "", "img": "",
+    })
+publishers += [{"name": r["출판사명"], "site": r["출판사 링크"], "count": str(series_count.get(r["출판사명"], 0)), "grade": ""} for r in sorted(new_pubs, key=lambda r: r["출판사명"])]
 
 influencers = []
 for r in sheet("ELT_인스타그램.xlsx", "간단 목록"):
