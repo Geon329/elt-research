@@ -82,7 +82,8 @@ for index, r in enumerate(sheet("ELT_출판사_시리즈_신간순20261108.xlsx"
     })
 
 NEW_REPORT = "국내_ELT_추가발굴_보고서_20261111.xlsx"
-new_pubs = [r for r in sheet(NEW_REPORT, "출판사") if not r["제외 사유"]]
+KEEP_NEW = {"그레이트북스", "담푸스", "마음이열린사람들 (잉글리시브레인스튜디오)", "판타스쿨", "프리몬스터스"}
+new_pubs = [r for r in sheet(NEW_REPORT, "출판사") if not r["제외 사유"] and r["출판사명"] in KEEP_NEW]
 new_names = {r["출판사명"] for r in new_pubs}
 series_count = {}
 for r in sheet(NEW_REPORT, "시리즈·프로그램"):
