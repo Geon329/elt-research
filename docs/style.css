@@ -81,3 +81,5 @@ span.grade{display:inline-block;min-width:26px;text-align:center;padding:2px 8px
 .sb-go:focus-visible{outline:2px solid var(--accent)}
 .sb-sub{font-size:16px;margin:8px 0 0}
 @media(max-width:900px){.sb-g{grid-template-columns:1fr}.sb-kp{grid-template-columns:repeat(2,1fr)}.sb-row{grid-template-columns:minmax(90px,1fr) 1.2fr 40px 30px}.sb-ct{display:none}}
+
+.clamp { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; max-width: 34em; }

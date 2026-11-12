@@ -199,8 +199,24 @@ def build_stats(products, elt, grade_of):
     return out
 
 
+TW_REPORT = "대만_ELT_출판사_보고서_최종v3_20261111.xlsx"
+tw_series = [
+    {"company": r["출판사명"], "series": r["시리즈·프로그램"], "kind": {"A": "A 코스형", "B": "B 읽기물형"}.get(r["A/B"][:1], r["A/B"]),
+     "subtype": r["세부 유형"], "ages": [a for a in ("유아", "초등", "중등", "고등", "성인") if a in r["대상"]],
+     "level": r["레벨·권수"], "link": r["링크"]}
+    for r in sheet(TW_REPORT, "시리즈·프로그램")
+]
+tw_count = {}
+for s in tw_series:
+    tw_count[s["company"]] = tw_count.get(s["company"], 0) + 1
+tw_publishers = [
+    {"name": r["출판사명"], "en": r["영어명"], "status": r["영업"] or "미확인", "type": r["유형"], "site": r["출판사 링크"],
+     "korean": r["판권 이력(한국)"], "count": str(tw_count.get(r["출판사명"], 0)), "grade": ""}
+    for r in sheet(TW_REPORT, "출판사")
+]
+
 data = {"stats": build_stats(products, elt, grade_of), "gradeLegend": GRADES["legend"], "publishers": publishers, "series": series, "influencers": influencers,
-        "activities": activities, "products": products, "elt": elt}
+        "activities": activities, "products": products, "elt": elt, "twPublishers": tw_publishers, "twSeries": tw_series}
 (SITE / "data.json").write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 stats = {k: len(v) for k, v in data.items()}
 stats["series_with_image"] = sum(bool(s["img"]) for s in series)

@@ -61,6 +61,19 @@ function views(d) {
         cols: [["구분", r => r.group, r => r.group, "nw"], ["항목", r => r.label, r => r.label], ["건수", r => r.count.toLocaleString(), r => r.count, "num"], ["비율", r => r.pct === null ? "" : r.pct + "%", r => r.pct || 0, "num"], ["기준", r => r.base, null, "nw"]],
         search: r => r.group + " " + r.label, filters: [["구분", r => r.group]], pre: true },
     ],
+    taiwan: [
+      { id: "twpub", title: "1. 대만 ELT 출판사 정보", rows: d.twPublishers || [],
+        cols: [["등급", r => el("span", { className: "grade gN", textContent: "미정", title: "등급 미정" })], ["출판사명", r => el("span", {}, el("strong", { textContent: r.name }), r.en ? el("div", { className: "muted", style: "margin:0", textContent: r.en }) : ""), r => r.name, "co"],
+          ["영업", r => r.status, r => r.status, "nw"], ["유형", r => r.type, r => r.type, "nw"], ["사이트링크", r => link(r.site, r.site)],
+          ["시리즈 수", r => r.count, r => +r.count || 0, "num"], ["한국 판권 이력", r => r.korean ? el("div", { className: "clamp", title: r.korean, textContent: r.korean }) : "", r => r.korean]],
+        search: r => [r.name, r.en, r.site, r.korean].join(" "), filters: [["영업", r => r.status], ["유형", r => r.type]] },
+      { id: "twseries", title: "2. 대만 출판사별 시리즈·프로그램", rows: d.twSeries || [],
+        cols: [["출판사명", r => r.company, r => r.company, "co"], ["시리즈명", r => el("strong", { textContent: r.series }), r => r.series],
+          ["시리즈 분류", r => tags([r.kind, r.subtype]), r => r.kind + r.subtype], ["연령대", r => tags(r.ages), r => r.ages.join()],
+          ["레벨·권수", r => r.level, r => r.level, "wide"], ["링크", r => link(r.link)]],
+        search: r => [r.company, r.series, r.subtype].join(" "),
+        filters: [["출판사", r => r.company], ["분류", r => r.kind], ["세부 유형", r => r.subtype], ["연령대", r => r.ages, true]] },
+    ],
   };
 }
 
@@ -182,5 +195,5 @@ fetch("data.json").then(r => r.json()).then(d => {
   });
   const withImg = d.series.filter(s => s.img).length;
   document.getElementById("summary").textContent =
-    `출판사 ${d.publishers.length}곳 · 시리즈 ${d.series.length.toLocaleString()}개(표지 ${withImg.toLocaleString()}) · 인플루언서 ${d.influencers.length}명 · 공구·모임 ${d.activities.length}건 · 공구 도서 ${d.products.length}건 · ELT 분류 ${d.elt.length}건`;
+    `대만 ELT 출판사 ${(d.twPublishers || []).length}곳 · 국내 출판사 ${d.publishers.length}곳 · 시리즈 ${d.series.length.toLocaleString()}개(표지 ${withImg.toLocaleString()}) · 인플루언서 ${d.influencers.length}명 · 공구·모임 ${d.activities.length}건 · 공구 도서 ${d.products.length}건 · ELT 분류 ${d.elt.length}건`;
 }).catch(() => { document.getElementById("summary").textContent = "데이터를 불러오지 못했습니다."; });
